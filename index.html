@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OpenInsta</title>
+</head>
+<body>
+<h1>OpenInsta</h1>
+<input type="file" accept="image/*" id="fileinput" />
+<div>
+    <label for="red">Red</label>
+    <input type="range" min="-255" max="255" value="0" id="red">
+
+    <label for="green">Green</label>
+    <input type="range" min="-255" max="255" value="0" id="green">
+
+
+    <label for="blue">Blue</label>
+    <input type="range" min="-255" max="255" value="0" id="blue">
+
+    <br/>
+    <canvas id="canvas" width="0" height="0"></canvas>
+</div>
+<script src="main.js"></script>
+</body>
+</html>
