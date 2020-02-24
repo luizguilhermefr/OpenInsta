@@ -8,6 +8,7 @@ const red = document.getElementById('red')
 const green = document.getElementById('green')
 const blue = document.getElementById('blue')
 const brightness = document.getElementById('brightness')
+const grayscale = document.getElementById('grayscale')
 
 const srcImage = new Image
 
@@ -53,6 +54,22 @@ function addBrightness(x, y, value) {
   addBlue(x, y, value)
 }
 
+function setGrayscale(x, y) {
+  const redIndex = getIndex(x, y) + R_OFFSET
+  const greenIndex = getIndex(x, y) + G_OFFSET
+  const blueIndex = getIndex(x, y) + B_OFFSET
+
+  const redValue = currentPixels[redIndex]
+  const greenValue = currentPixels[greenIndex]
+  const blueValue = currentPixels[blueIndex]
+
+  const mean = (redValue + greenValue + blueValue) / 3
+
+  currentPixels[redIndex] = clamp(mean)
+  currentPixels[greenIndex] = clamp(mean)
+  currentPixels[blueIndex] = clamp(mean)
+}
+
 function addContrast(x, y, value) {
   //
 }
@@ -72,6 +89,7 @@ function commitChanges() {
 function runPipeline() {
   currentPixels = originalPixels.slice()
 
+  const grayscaleFilter = grayscale.checked
   const brightnessFilter = Number(brightness.value)
   const redFilter = Number(red.value)
   const greenFilter = Number(green.value)
@@ -79,10 +97,17 @@ function runPipeline() {
 
   for (let i = 0; i < srcImage.height; i++) {
     for (let j = 0; j < srcImage.width; j++) {
+      if (grayscaleFilter) {
+        setGrayscale(j, i)
+      }
+
       addBrightness(j, i, brightnessFilter)
-      addRed(j, i, redFilter)
-      addGreen(j, i, greenFilter)
-      addBlue(j, i, blueFilter)
+
+      if (!grayscaleFilter) {
+        addRed(j, i, redFilter)
+        addGreen(j, i, greenFilter)
+        addBlue(j, i, blueFilter)
+      }
     }
   }
 
@@ -110,3 +135,5 @@ green.onchange = runPipeline
 blue.onchange = runPipeline
 
 brightness.onchange = runPipeline
+
+grayscale.onchange = runPipeline
