@@ -9,6 +9,7 @@ const green = document.getElementById('green')
 const blue = document.getElementById('blue')
 const brightness = document.getElementById('brightness')
 const grayscale = document.getElementById('grayscale')
+const contrast = document.getElementById('contrast')
 
 const srcImage = new Image
 
@@ -71,7 +72,23 @@ function setGrayscale(x, y) {
 }
 
 function addContrast(x, y, value) {
-  //
+  const redIndex = getIndex(x, y) + R_OFFSET
+  const greenIndex = getIndex(x, y) + G_OFFSET
+  const blueIndex = getIndex(x, y) + B_OFFSET
+
+  const redValue = currentPixels[redIndex]
+  const greenValue = currentPixels[greenIndex]
+  const blueValue = currentPixels[blueIndex]
+
+  const alpha = (value + 255) / 255 // Goes from 0 to 2, where 0 to 1 is less contrast and 1 to 2 is more contrast
+
+  const nextRed = alpha * (redValue - 128) + 128
+  const nextGreen = alpha * (greenValue - 128) + 128
+  const nextBlue = alpha * (blueValue - 128) + 128
+
+  currentPixels[redIndex] = clamp(nextRed)
+  currentPixels[greenIndex] = clamp(nextGreen)
+  currentPixels[blueIndex] = clamp(nextBlue)
 }
 
 function addSaturation(x, y, value) {
@@ -91,6 +108,7 @@ function runPipeline() {
 
   const grayscaleFilter = grayscale.checked
   const brightnessFilter = Number(brightness.value)
+  const contrastFilter = Number(contrast.value)
   const redFilter = Number(red.value)
   const greenFilter = Number(green.value)
   const blueFilter = Number(blue.value)
@@ -102,6 +120,7 @@ function runPipeline() {
       }
 
       addBrightness(j, i, brightnessFilter)
+      addContrast(j, i, contrastFilter)
 
       if (!grayscaleFilter) {
         addRed(j, i, redFilter)
@@ -129,11 +148,8 @@ srcImage.onload = function () {
 }
 
 red.onchange = runPipeline
-
 green.onchange = runPipeline
-
 blue.onchange = runPipeline
-
 brightness.onchange = runPipeline
-
 grayscale.onchange = runPipeline
+contrast.onchange = runPipeline
