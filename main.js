@@ -7,12 +7,15 @@ const ctx = canvas.getContext('2d')
 const red = document.getElementById('red')
 const green = document.getElementById('green')
 const blue = document.getElementById('blue')
+const brightness = document.getElementById('brightness')
 
 const srcImage = new Image
 
 let imgData = null
 
-let sourcePixels = null
+let originalPixels = null
+
+let currentPixels = null
 
 const R_OFFSET = 0
 const G_OFFSET = 1
@@ -28,34 +31,62 @@ function clamp(value) {
 
 function addRed(x, y, value) {
   const index = getIndex(x, y) + R_OFFSET
-  const currentValue = sourcePixels[index]
-  imgData.data[index] = clamp(currentValue + value)
+  const currentValue = currentPixels[index]
+  currentPixels[index] = clamp(currentValue + value)
 }
 
 function addGreen(x, y, value) {
   const index = getIndex(x, y) + G_OFFSET
-  const currentValue = sourcePixels[index]
-  imgData.data[index] = clamp(currentValue + value)
+  const currentValue = currentPixels[index]
+  currentPixels[index] = clamp(currentValue + value)
 }
 
 function addBlue(x, y, value) {
   const index = getIndex(x, y) + B_OFFSET
-  const currentValue = sourcePixels[index]
-  imgData.data[index] = clamp(currentValue + value)
+  const currentValue = currentPixels[index]
+  currentPixels[index] = clamp(currentValue + value)
 }
 
-function rerender() {
+function addBrightness(x, y, value) {
+  addRed(x, y, value)
+  addGreen(x, y, value)
+  addBlue(x, y, value)
+}
+
+function addContrast(x, y, value) {
+  //
+}
+
+function addSaturation(x, y, value) {
+  //
+}
+
+function commitChanges() {
+  for (let i = 0; i < imgData.data.length; i++) {
+    imgData.data[i] = currentPixels[i]
+  }
+
   ctx.putImageData(imgData, 0, 0, 0, 0, srcImage.width, srcImage.height)
 }
 
-function applyFilter(filter) {
+function runPipeline() {
+  currentPixels = originalPixels.slice()
+
+  const brightnessFilter = Number(brightness.value)
+  const redFilter = Number(red.value)
+  const greenFilter = Number(green.value)
+  const blueFilter = Number(blue.value)
+
   for (let i = 0; i < srcImage.height; i++) {
     for (let j = 0; j < srcImage.width; j++) {
-      filter(j, i)
+      addBrightness(j, i, brightnessFilter)
+      addRed(j, i, redFilter)
+      addGreen(j, i, greenFilter)
+      addBlue(j, i, blueFilter)
     }
   }
 
-  rerender()
+  commitChanges()
 }
 
 fileinput.onchange = function (e) {
@@ -69,23 +100,13 @@ srcImage.onload = function () {
   canvas.height = srcImage.height
   ctx.drawImage(srcImage, 0, 0, srcImage.width, srcImage.height)
   imgData = ctx.getImageData(0, 0, srcImage.width, srcImage.height)
-  sourcePixels = imgData.data.slice()
+  originalPixels = imgData.data.slice()
 }
 
-red.onchange = function (e) {
-  applyFilter(function (x, y) {
-    addRed(x, y, Number(e.target.value))
-  })
-}
+red.onchange = runPipeline
 
-green.onchange = function (e) {
-  applyFilter(function (x, y) {
-    addGreen(x, y, Number(e.target.value))
-  })
-}
+green.onchange = runPipeline
 
-blue.onchange = function (e) {
-  applyFilter(function (x, y) {
-    addBlue(x, y, Number(e.target.value))
-  })
-}
+blue.onchange = runPipeline
+
+brightness.onchange = runPipeline
