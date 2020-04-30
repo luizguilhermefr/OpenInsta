@@ -28,7 +28,7 @@ contrast.onchange = runPipeline
 
 /* Variables setup */
 
-// Similar to document.createElement('img') except we don't need it on the document, just need it for processing?
+// Similar to document.createElement('img') except we don't need it on the document
 const srcImage = new Image()
 
 let imgData = null
@@ -126,7 +126,7 @@ function runPipeline() {
 
 /* Filter effects */
 
-// The image is stored as a 1d array with red first, then green, and blue
+// The image is stored as a 1d array with red first, then green, and blue 
 const R_OFFSET = 0
 const G_OFFSET = 1
 const B_OFFSET = 2
