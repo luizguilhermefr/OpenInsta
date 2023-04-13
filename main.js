@@ -14,6 +14,7 @@ const green = document.getElementById('green')
 const blue = document.getElementById('blue')
 const brightness = document.getElementById('brightness')
 const grayscale = document.getElementById('grayscale')
+const inverse = document.getElementById('inverse')
 const contrast = document.getElementById('contrast')
 
 // Set the listener for whenever one of the effect changes
@@ -22,6 +23,7 @@ green.onchange = runPipeline
 blue.onchange = runPipeline
 brightness.onchange = runPipeline
 grayscale.onchange = runPipeline
+inverse.onchange = runPipeline
 contrast.onchange = runPipeline
 
 
@@ -97,6 +99,8 @@ function runPipeline() {
 
   // Binary, should this be grayscaled or not?
   const grayscaleFilter = grayscale.checked
+  // Binary, should this be inversed or not?
+  const inverseFilter = inverse.checked
 
   // For every pixel of the src image
   for (let i = 0; i < srcImage.height; i++) {
@@ -106,6 +110,9 @@ function runPipeline() {
 
       if (grayscaleFilter) {
         setGrayscale(j, i)
+      }
+      if (inverseFilter) {
+        setInverse(j, i)
       }
 
       addBrightness(j, i, brightnessFilter)
@@ -169,6 +176,16 @@ function setGrayscale(x, y) {
   currentPixels[redIndex] = clamp(mean)
   currentPixels[greenIndex] = clamp(mean)
   currentPixels[blueIndex] = clamp(mean)
+}
+
+function setInverse(x, y) {
+  const redIndex = getIndex(x, y) + R_OFFSET
+  const greenIndex = getIndex(x, y) + G_OFFSET
+  const blueIndex = getIndex(x, y) + B_OFFSET
+  
+  currentPixels[redIndex] = 255 - currentPixels[redIndex]
+  currentPixels[greenIndex] = 255 - currentPixels[greenIndex]
+  currentPixels[blueIndex] = 255 - currentPixels[blueIndex]
 }
 
 function addContrast(x, y, value) {
